@@ -1,37 +1,41 @@
-'use client'
+"use client";
 
-import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
-import React, { useState } from 'react'
-import OptionalRendering from './ui/OptionalRendering'
-import SearchIcon from './icons/SearchIcon'
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useState } from "react";
+import OptionalRendering from "./ui/OptionalRendering";
+import SearchIcon from "./icons/SearchIcon";
 
 const navigations: Array<{
-  title: string
-  link: string
+  title: string;
+  link: string;
 }> = [
   {
-    title: 'Data',
-    link: '/data'
+    title: "Data",
+    link: "/data",
   },
   {
-    title: 'Visualization',
-    link: '/visualization'
+    title: "Chatbot",
+    link: "/chat",
   },
   {
-    title: 'FAQ',
-    link: '/faq'
+    title: "Visualization",
+    link: "/visualization",
   },
   {
-    title: 'About',
-    link: '/about'
-  }
-]
+    title: "FAQ",
+    link: "/faq",
+  },
+  {
+    title: "About",
+    link: "/about",
+  },
+];
 
-export default function Navbar (): React.ReactElement {
-  const [showMenu, setShowMenu] = useState(false)
-  const path = usePathname()
-  const router = useRouter()
+export default function Navbar(): React.ReactElement {
+  const [showMenu, setShowMenu] = useState(false);
+  const path = usePathname();
+  const router = useRouter();
 
   return (
     <header>
@@ -50,40 +54,40 @@ export default function Navbar (): React.ReactElement {
               <a
                 href={navigation.link}
                 className={
-                  'text-sm font-medium hover:cursor-pointer hover:opacity-40 transition-all duration-200'
+                  "text-sm font-medium hover:cursor-pointer hover:opacity-40 transition-all duration-200"
                 }
               >
                 {navigation.title}
               </a>
               <div
-                className={`w-full h-1 rounded-md mt-0.5 ${
+                className={`w-full h-[1px] rounded-md ${
                   path === navigation.link
-                    ? 'bg-colorPrimary'
-                    : 'bg-transparent'
+                    ? "bg-colorPrimary"
+                    : "bg-transparent"
                 }`}
               />
             </div>
           ))}
         </div>
-        <div>
-          <div className="hidden sm:flex flex-row items-center gap-2 px-3 border rounded-full">
-            <SearchIcon />
-            <input
-              className="w-32 lg:w-56 py-2 px-1 text-sm outline-none"
-              type="search"
-              placeholder="Search people or companies..."
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  router.replace('/data?query=' + event.currentTarget.value)
-                }
-              }}
-            />
-          </div>
-        </div>
+        {/* <div>
+            <div className="hidden sm:flex flex-row items-center gap-2 px-3 border rounded-full">
+              <SearchIcon />
+              <input
+                className="w-32 lg:w-56 py-2 px-1 text-sm outline-none"
+                type="search"
+                placeholder="Search people or companies..."
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    router.replace("/data?query=" + event.currentTarget.value);
+                  }
+                }}
+              />
+            </div>
+          </div> */}
         {/* Mobile Navigation */}
         <button
           onClick={() => {
-            setShowMenu(!showMenu)
+            setShowMenu(!showMenu);
           }}
           className="absolute sm:hidden bg-slate-100 hover:bg-slate-200 transition-all duration-200 rounded-sm right-4"
         >
@@ -97,19 +101,19 @@ export default function Navbar (): React.ReactElement {
       </nav>
       <OptionalRendering condition={showMenu}>
         <nav className="flex flex-col gap-2 md:hidden">
-          <div className="flex mb-4 mx-4 lex-row items-center gap-2 px-3 border rounded-full">
+          {/* <div className="flex mb-4 mx-4 lex-row items-center gap-2 px-3 border rounded-full">
             <SearchIcon />
             <input
               className="w-full py-2 px-1 text-sm outline-none"
               type="search"
               placeholder="Search people or companies..."
               onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  router.replace('/data?query=' + event.currentTarget.value)
+                if (event.key === "Enter") {
+                  router.replace("/data?query=" + event.currentTarget.value);
                 }
               }}
             />
-          </div>
+          </div> */}
 
           {navigations.map((navigation, index) => (
             <a
@@ -122,7 +126,7 @@ export default function Navbar (): React.ReactElement {
           ))}
         </nav>
       </OptionalRendering>
-      <div className={'w-full h-[1px] bg-gray20 rounded-md hidden sm:block'} />
+      <div className={"w-full h-[1px] bg-gray20 rounded-md hidden sm:block"} />
     </header>
-  )
+  );
 }
