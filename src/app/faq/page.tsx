@@ -9,7 +9,7 @@ function DropdownItem({ value }: { value: string }): React.ReactElement {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-1 rounded-md shadow-sm active:shadow-md transition-all duration-200">
+    <div className="border-1 rounded-md shadow-sm active:shadow-md transition-all duration-200 bg-white">
       <div
         className="header flex flex-row justify-between w-full cursor-pointer px-4 py-4"
         onClick={() => {
@@ -44,12 +44,12 @@ function DropdownItem({ value }: { value: string }): React.ReactElement {
 
 export default function FaqPage(): React.ReactElement {
   return (
-    <main className="py-8 flex flex-col justify-center items-center">
+    <main className="py-8 flex flex-col justify-center items-center pt-20">
       <div className="py-16">
         <Image
           src="/images/img_background_small.png"
           alt="Background Hero"
-          className="absolute w-full top-10 left-0 right-0 -z-10 mt-2 hidden sm:block"
+          className="absolute w-full h-52 top-10 left-0 right-0 -z-10 mt-2 hidden sm:block"
           width={1000}
           height={500}
         />
