@@ -4,7 +4,6 @@ import CustomMarkdown from "@/components/CustomMarkdown";
 import { CircularProgress } from "@nextui-org/react";
 import React, { memo, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { v7 as uuidv7 } from "uuid";
 import useTokenSession from "@/hooks/useTokenSession";
 
 type Chat = {
