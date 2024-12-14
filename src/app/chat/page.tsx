@@ -24,6 +24,12 @@ const ChatBotContent = memo(function ChatBotContent({
   );
 });
 
+const defaultComponentTransition = {
+  type: "tween",
+  ease: ["easeIn", "easeOut"],
+  duration: 0.4,
+};
+
 export default function ChatPage(): React.ReactElement {
   const [chats, setChats] = useState<Chat[]>([]);
   const [query, setQuery] = useState("");
@@ -33,8 +39,16 @@ export default function ChatPage(): React.ReactElement {
 
   const token = useTokenSession();
 
-  const chatboxRef = useRef<HTMLDivElement>(null);
+  const chatListRef = useRef<HTMLDivElement>(null);
+  const inputBoxRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (inputBoxRef.current?.style.height) {
+      inputBoxRef.current.style.height =
+        inputBoxRef.current.scrollHeight + "px";
+    }
+  }, []);
 
   return (
     <main className="flex flex-col overflow-hidden h-screen pt-20">
@@ -43,11 +57,7 @@ export default function ChatPage(): React.ReactElement {
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 100 }}
-            transition={{
-              type: "tween",
-              ease: ["easeIn", "easeOut"],
-              duration: 0.4,
-            }}
+            transition={defaultComponentTransition}
             className="flex-1 flex flex-col justify-center items-center"
             exit={{ opacity: 0 }}
           >
@@ -62,11 +72,11 @@ export default function ChatPage(): React.ReactElement {
       {!showWelcome && (
         <motion.div
           className="flex-1 px-72 py-9 space-y-6 overflow-scroll relative"
-          ref={chatboxRef}
+          ref={chatListRef}
           onScroll={(event) => {
             const currentScrollPosition = event.currentTarget.scrollTop;
-            const fullHeight = chatboxRef.current?.scrollHeight ?? 0;
-            const offsetHeight = chatboxRef.current?.offsetHeight ?? 0;
+            const fullHeight = chatListRef.current?.scrollHeight ?? 0;
+            const offsetHeight = chatListRef.current?.offsetHeight ?? 0;
             if (fullHeight > offsetHeight) {
               if (currentScrollPosition < fullHeight - offsetHeight - 100) {
                 setShowScrollToBottom(true);
@@ -79,11 +89,7 @@ export default function ChatPage(): React.ReactElement {
           }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{
-            type: "tween",
-            ease: ["easeIn", "easeOut"],
-            delay: 0.4,
-          }}
+          transition={defaultComponentTransition}
         >
           {/* Chat List */}
           {chats.map((chat, index) => {
@@ -159,9 +165,9 @@ export default function ChatPage(): React.ReactElement {
           <AnimatePresence>
             {showScrollToBottom && (
               <motion.div
-                onClick={() => {
-                  bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-                }}
+                onClick={() =>
+                  bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+                }
                 initial={{ opacity: 0, y: 100 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
@@ -197,13 +203,13 @@ export default function ChatPage(): React.ReactElement {
       <div className="px-72 w-full">
         <div className="relative mb-24">
           <textarea
-            className="w-full m-0 align-bottom inline-block resize-none border-1 pl-4 pe-8 py-2 text-base rounded-lg placeholder:text-base placeholder:font-light shadow-sm outline-colorPrimary"
+            className="w-full m-0 align-bottom inline-block resize-none border-1 pl-4 pe-8 py-2 text-base rounded-lg placeholder:text-base placeholder:font-light shadow-sm outline-colorPrimary placeholder:m-0 placeholder:p-0"
             name="message"
             id="message"
             rows={1}
+            ref={inputBoxRef}
             autoComplete="off"
             onInput={(event) => {
-              event.currentTarget.style.height = "auto";
               event.currentTarget.style.height =
                 event.currentTarget.scrollHeight + "px";
               setQuery(event.currentTarget.value);
@@ -216,6 +222,7 @@ export default function ChatPage(): React.ReactElement {
                   event.preventDefault();
                   setQuery(query + "\n");
                 } else {
+                  // TODO: Handle using backend service later
                   event.preventDefault();
                   setLoading(true);
                   setShowWelcome(false);
@@ -240,6 +247,7 @@ export default function ChatPage(): React.ReactElement {
 
                   // Reset the form
                   setQuery("");
+                  event.currentTarget.blur();
                   event.currentTarget.style.height = "auto";
                 }
               }
@@ -248,6 +256,7 @@ export default function ChatPage(): React.ReactElement {
           <button
             className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:opacity-85 transition-all duration-200"
             onClick={() => {
+              // TODO: Handle using backend service later
               setLoading(true);
               setShowWelcome(false);
 
@@ -260,8 +269,6 @@ export default function ChatPage(): React.ReactElement {
               ];
               setChats(newChats);
 
-              setQuery("");
-
               setTimeout(() => {
                 setLoading(false);
                 setChats([
@@ -272,6 +279,13 @@ export default function ChatPage(): React.ReactElement {
                   },
                 ]);
               }, 3000);
+
+              // Reset the form
+              setQuery("");
+              if (inputBoxRef.current) {
+                inputBoxRef.current.blur();
+                inputBoxRef.current.style.height = "auto";
+              }
             }}
           >
             <svg
