@@ -43,6 +43,7 @@ export default function Navbar(): React.ReactElement {
             src="/images/img_logo.png"
             width={154}
             height={40}
+            priority={true}
             alt="Lexicon Beneficial Ownership Logo"
           />
         </a>
