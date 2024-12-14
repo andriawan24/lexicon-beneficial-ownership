@@ -56,7 +56,7 @@ export default function Footer(): React.ReactElement {
         </div>
         <div className="flex flex-col items-end flex-1">
           <a
-            href="https://github.com/LexiconIndonesia"
+            href="https://github.com/Lexicon-Open-Source"
             target="_blank"
             className="flex flex-row justify-center items-center gap-2 bg-gray-200 hover:opacity-80 transition-all duration-200 px-4 py-2 rounded-lg"
             rel="noreferrer"
