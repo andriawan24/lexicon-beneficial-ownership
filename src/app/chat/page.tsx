@@ -5,10 +5,12 @@ import { CircularProgress } from "@nextui-org/react";
 import React, { memo, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import useTokenSession from "@/hooks/useTokenSession";
+import { sendMessage } from "@/services/chatbot";
 
 type Chat = {
   text: string;
   isFromSender: boolean;
+  references: any[];
 };
 
 const ChatBotContent = memo(function ChatBotContent({
@@ -32,9 +34,9 @@ const defaultComponentTransition = {
 export default function ChatPage(): React.ReactElement {
   const [chats, setChats] = useState<Chat[]>([]);
   const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [showLoadingBot, setShowLoadingBot] = useState(false);
 
   const token = useTokenSession();
 
@@ -48,6 +50,52 @@ export default function ChatPage(): React.ReactElement {
         inputBoxRef.current.scrollHeight + "px";
     }
   }, []);
+
+  const handleSendMessage = async () => {
+    setShowLoadingBot(true);
+    setShowWelcome(false);
+
+    const chat = query;
+    setQuery("");
+
+    const newChats = [
+      ...chats,
+      {
+        text: query,
+        isFromSender: true,
+        references: [],
+      },
+    ];
+    setChats(newChats);
+
+    const response = await sendMessage({
+      thread_id: token,
+      user_message: query,
+    });
+
+    if (response.success) {
+      setChats([
+        ...newChats,
+        {
+          text: response.success.data?.response ?? "",
+          isFromSender: false,
+          references: response.success.data?.references ?? [],
+        },
+      ]);
+    } else {
+      setChats([
+        ...newChats,
+        {
+          text: response.error?.toString() ?? "",
+          isFromSender: false,
+          references: [],
+        },
+      ]);
+    }
+
+    // Reset the form
+    setShowLoadingBot(false);
+  };
 
   return (
     <main className="flex flex-col overflow-hidden h-screen pt-20">
@@ -70,7 +118,7 @@ export default function ChatPage(): React.ReactElement {
 
       {!showWelcome && (
         <motion.div
-          className="flex-1 px-72 py-9 space-y-6 overflow-scroll relative"
+          className="flex-1 px-4 md:px-72 py-9 space-y-6 overflow-scroll relative"
           ref={chatListRef}
           onScroll={(event) => {
             const currentScrollPosition = event.currentTarget.scrollTop;
@@ -125,25 +173,8 @@ export default function ChatPage(): React.ReactElement {
                       />
                     </svg>
                   </div>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 mt-2">
                     <ChatBotContent content={chat.text} />
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.6, delay: 1 }}
-                      className="mt-6 p-3 border-1 border-colorBorder rounded-lg w-fit"
-                    >
-                      <h3 className="text-textGray40 text-xs font-normal">
-                        Source:
-                      </h3>
-                      <a
-                        href="https://google.com"
-                        target="_blank"
-                        className="underline underline-offset-2 text-colorPrimary font-bold text-sm hover:opacity-85"
-                      >
-                        Amri Zalva - Individu
-                      </a>
-                    </motion.div>
                   </div>
                 </div>
               );
@@ -151,12 +182,9 @@ export default function ChatPage(): React.ReactElement {
           })}
 
           {/* Loading State */}
-          {loading && (
+          {showLoadingBot && (
             <div className="flex flex-row gap-4 items-center w-fit bg-slate-50 px-4 py-2 rounded-xl">
               <CircularProgress size="sm" />
-              <h5 className="text-sm font-semibold text-textGrayBold">
-                Generating Responses...
-              </h5>
             </div>
           )}
 
@@ -199,8 +227,8 @@ export default function ChatPage(): React.ReactElement {
         </motion.div>
       )}
 
-      <div className="px-72 w-full">
-        <div className="relative mb-24">
+      <div className="px-4 md:px-72 w-full">
+        <div className="relative mb-6 md:mb-24">
           <textarea
             className="w-full m-0 align-bottom inline-block resize-none border-1 pl-4 pe-8 py-2 text-base rounded-lg placeholder:text-base placeholder:font-light shadow-sm outline-colorPrimary placeholder:m-0 placeholder:p-0"
             name="message"
@@ -215,72 +243,24 @@ export default function ChatPage(): React.ReactElement {
             }}
             value={query}
             placeholder="Message Chatbot"
-            onKeyDown={(event) => {
+            onKeyDown={async (event) => {
               if (event.key == "Enter") {
                 if (event.shiftKey) {
                   event.preventDefault();
                   setQuery(query + "\n");
                 } else {
-                  // TODO: Handle using backend service later
                   event.preventDefault();
-                  setLoading(true);
-                  setShowWelcome(false);
-                  const newChats = [
-                    ...chats,
-                    {
-                      text: query,
-                      isFromSender: true,
-                    },
-                  ];
-                  setChats(newChats);
-                  setTimeout(() => {
-                    setLoading(false);
-                    setChats([
-                      ...newChats,
-                      {
-                        text: "This is the result",
-                        isFromSender: false,
-                      },
-                    ]);
-                  }, 3000);
-
-                  // Reset the form
-                  setQuery("");
                   event.currentTarget.blur();
                   event.currentTarget.style.height = "auto";
+                  await handleSendMessage();
                 }
               }
             }}
           ></textarea>
           <button
             className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:opacity-85 transition-all duration-200"
-            onClick={() => {
-              // TODO: Handle using backend service later
-              setLoading(true);
-              setShowWelcome(false);
-
-              const newChats = [
-                ...chats,
-                {
-                  text: query,
-                  isFromSender: true,
-                },
-              ];
-              setChats(newChats);
-
-              setTimeout(() => {
-                setLoading(false);
-                setChats([
-                  ...newChats,
-                  {
-                    text: "This is the result",
-                    isFromSender: false,
-                  },
-                ]);
-              }, 3000);
-
-              // Reset the form
-              setQuery("");
+            onClick={async () => {
+              await handleSendMessage();
               if (inputBoxRef.current) {
                 inputBoxRef.current.blur();
                 inputBoxRef.current.style.height = "auto";
