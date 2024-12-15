@@ -35,8 +35,10 @@ You can access the website directly at [this link](https://bo.lexicon.id/)
 - [x] New API Implementation
 - [x] Redesign the old demonstration
 - [x] Landing page implementation
+- [x] Visualization feature implementation
+- [ ] Chatbot search (in progress)
 - [ ] Create documentation (readme, license, etc)
-- [ ] Visualization feature implementation
+- [ ] Implement CI/CD
       See the [open issues](https://github.com/LexiconIndonesia/lexicon-beneficiary-ownership/issues) for a full list of proposed features (and known issues).
 
 # How to Run
